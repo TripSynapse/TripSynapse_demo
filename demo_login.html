@@ -110,13 +110,14 @@
         <!-- VIEW 1: LOGIN FORM -->
         <div id="login-view"
             class="w-full max-w-md bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-8 animate-fade-in">
-            <div class="text-center mb-8">
+            <div class="text-center mb-6">
                 <h1 class="text-2xl font-bold mb-2" data-key="login.title">Welcome Back</h1>
                 <p class="text-slate-500 dark:text-slate-400 text-sm" data-key="login.subtitle">Please sign in to access
                     the Demo.</p>
             </div>
 
-            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-6">
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+                <!-- Username -->
                 <div>
                     <label for="username" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
                         data-key="login.username">Username</label>
@@ -130,6 +131,7 @@
                     </div>
                 </div>
 
+                <!-- Password -->
                 <div>
                     <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
                         data-key="login.password">Password</label>
@@ -140,6 +142,46 @@
                         <input type="password" id="password"
                             class="block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all"
                             placeholder="Enter password" required>
+                    </div>
+                </div>
+
+                <!-- NEW: Plan Selection -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3"
+                        data-key="login.selectPlan">Select Plan for Demo</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Explorer -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="plan" value="Explorer" class="peer sr-only">
+                            <div
+                                class="rounded-xl border-2 border-slate-200 dark:border-slate-700 p-3 text-center transition-all hover:border-slate-400 peer-checked:border-slate-500 peer-checked:bg-slate-100 dark:peer-checked:bg-slate-800 dark:peer-checked:border-slate-400 peer-checked:shadow-inner opacity-60 peer-checked:opacity-100 hover:opacity-100">
+                                <i class="fas fa-compass text-xl mb-2 text-slate-500"></i>
+                                <div class="text-[10px] uppercase font-bold text-slate-700 dark:text-slate-300"
+                                    data-key="plan.explorer">Explorer</div>
+                            </div>
+                        </label>
+
+                        <!-- Standard -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="plan" value="Standard" class="peer sr-only" checked>
+                            <div
+                                class="rounded-xl border-2 border-slate-200 dark:border-slate-700 p-3 text-center transition-all hover:border-brand-purple peer-checked:border-brand-purple peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/20 peer-checked:shadow-sm opacity-60 peer-checked:opacity-100 hover:opacity-100">
+                                <i class="fas fa-plane text-xl mb-2 text-brand-purple"></i>
+                                <div class="text-[10px] uppercase font-bold text-slate-700 dark:text-slate-300"
+                                    data-key="plan.standard">Standard</div>
+                            </div>
+                        </label>
+
+                        <!-- Jetsetter -->
+                        <label class="cursor-pointer group">
+                            <input type="radio" name="plan" value="Jetsetter" class="peer sr-only">
+                            <div
+                                class="rounded-xl border-2 border-slate-200 dark:border-slate-700 p-3 text-center transition-all hover:border-brand-blue peer-checked:border-brand-blue peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 peer-checked:shadow-sm opacity-60 peer-checked:opacity-100 hover:opacity-100">
+                                <i class="fas fa-rocket text-xl mb-2 text-brand-blue"></i>
+                                <div class="text-[10px] uppercase font-bold text-slate-700 dark:text-slate-300"
+                                    data-key="plan.jetsetter">Jetsetter</div>
+                            </div>
+                        </label>
                     </div>
                 </div>
 
@@ -166,7 +208,16 @@
             <!-- Search Bar -->
             <div
                 class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 mb-8">
-                <h2 class="text-xl font-bold mb-4" data-key="app.analyzeTitle">Analyze a Hotel</h2>
+
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold" data-key="app.analyzeTitle">Analyze a Hotel</h2>
+                    <!-- Display Current Plan Badge -->
+                    <span id="current-plan-badge"
+                        class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
+                        <!-- JS Will Inject Plan Here -->
+                    </span>
+                </div>
+
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -314,6 +365,10 @@
                 "login.subtitle": "Please sign in to access the Demo.",
                 "login.username": "Username",
                 "login.password": "Password",
+                "login.selectPlan": "Select Plan for Demo",
+                "plan.explorer": "Explorer",
+                "plan.standard": "Standard",
+                "plan.jetsetter": "Jetsetter",
                 "login.btn": "Sign In",
                 "login.error": "Invalid username or password.",
                 "login.hint": "Try user: <strong>demo</strong> / pass: <strong>demoUser2025</strong>",
@@ -341,6 +396,10 @@
                 "login.subtitle": "Te rugăm să te autentifici pentru a accesa Demo-ul.",
                 "login.username": "Nume utilizator",
                 "login.password": "Parola",
+                "login.selectPlan": "Selectează Planul Demo",
+                "plan.explorer": "Explorator",
+                "plan.standard": "Standard",
+                "plan.jetsetter": "Jetsetter",
                 "login.btn": "Autentificare",
                 "login.error": "Nume de utilizator sau parolă invalidă.",
                 "login.hint": "Încearcă user: <strong>demo</strong> / parolă: <strong>demoUser2025</strong>",
@@ -385,6 +444,27 @@
                 const base = homeLink.getAttribute('href').split('?')[0];
                 homeLink.href = `${base}?lang=${currentLang}`;
             }
+
+            // Update Plan Badge if visible
+            const storedPlan = sessionStorage.getItem('tripSynapsePlan');
+            if (storedPlan) {
+                // Map English Plan names to current lang for display
+                let displayPlan = storedPlan;
+                if (currentLang === 'ro') {
+                    if (storedPlan === 'Explorer') displayPlan = 'Explorator';
+                    // Standard/Jetsetter stay roughly same
+                }
+                const badge = document.getElementById('current-plan-badge');
+                badge.innerText = `Plan: ${displayPlan}`;
+                // Styling depending on plan
+                if (storedPlan === 'Jetsetter') {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-blue/10 text-brand-blue border border-brand-blue/20";
+                } else if (storedPlan === 'Standard') {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-purple/10 text-brand-purple border border-brand-purple/20";
+                } else {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700";
+                }
+            }
         }
 
         function toggleLanguage() {
@@ -402,6 +482,9 @@
 
             const userIn = document.getElementById('username').value;
             const passIn = document.getElementById('password').value;
+            // Get selected radio value
+            const planIn = document.querySelector('input[name="plan"]:checked').value;
+
             const errorMsg = document.getElementById('login-error');
 
             if (typeof VALID_USERS === 'undefined') {
@@ -416,7 +499,11 @@
                 document.getElementById('login-view').classList.add('hidden');
                 document.getElementById('app-view').classList.remove('hidden');
                 document.getElementById('logout-btn').classList.remove('hidden');
+
                 sessionStorage.setItem('tripSynapseUser', validUser.name);
+                sessionStorage.setItem('tripSynapsePlan', planIn);
+
+                updateUI(); // Refresh UI to show plan badge
             } else {
                 errorMsg.classList.remove('hidden');
                 const form = document.getElementById('login-view');
@@ -427,6 +514,7 @@
 
         function logout() {
             sessionStorage.removeItem('tripSynapseUser');
+            sessionStorage.removeItem('tripSynapsePlan');
             location.reload();
         }
 
