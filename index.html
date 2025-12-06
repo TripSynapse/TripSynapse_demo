@@ -149,10 +149,11 @@
                         <i class="fas fa-sun hidden dark:block text-yellow-400"></i>
                     </button>
 
-                    <button onclick="openWaitlistForm()" data-key="nav.cta"
-                        class="bg-gradient-brand hover:opacity-90 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg shadow-brand-blue/20 text-sm">
-                        Join the Demo waitlist
-                    </button>
+                    <!-- UPDATE: Changed from Button to Link -->
+                    <a href="demo_login.html" data-key="nav.cta"
+                        class="bg-gradient-brand hover:opacity-90 text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg shadow-brand-blue/20 text-sm flex items-center justify-center">
+                        Access the Demo
+                    </a>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -193,9 +194,11 @@
                     class="text-base font-medium text-slate-600 dark:text-slate-300 py-2 border-b border-slate-50 dark:border-slate-800 mobile-link">Pricing</a>
                 <a href="#faq" data-key="nav.faq"
                     class="text-base font-medium text-slate-600 dark:text-slate-300 py-2 border-b border-slate-50 dark:border-slate-800 mobile-link">FAQ</a>
-                <button onclick="openWaitlistForm()" data-key="nav.cta"
-                    class="bg-gradient-brand text-white w-full py-3 rounded-lg font-bold mt-2">Join the Demo
-                    waitlist</button>
+
+                <!-- UPDATE: Changed to Link -->
+                <a href="demo_login.html" data-key="nav.cta"
+                    class="bg-gradient-brand text-white w-full py-3 rounded-lg font-bold mt-2 text-center block">Access
+                    the Demo</a>
             </div>
         </div>
     </nav>
@@ -231,11 +234,11 @@
                         and the honest truth about your hotel.
                     </p>
                     <div class="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-                        <button onclick="openWaitlistForm()"
+                        <!-- UPDATE: Changed to Link -->
+                        <a href="demo_login.html"
                             class="bg-gradient-brand hover:opacity-90 text-white px-8 py-4 rounded-full text-lg font-bold transition-all transform hover:scale-105 shadow-lg shadow-brand-blue/30 flex items-center justify-center gap-2">
-                            <span data-key="hero.ctaPrimary">Join the Demo waitlist</span> <i
-                                class="fas fa-arrow-right"></i>
-                        </button>
+                            <span data-key="hero.ctaPrimary">Access the Demo</span> <i class="fas fa-arrow-right"></i>
+                        </a>
                         <button onclick="openVideoModal()"
                             class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-white border border-slate-200 dark:border-slate-700 px-8 py-4 rounded-full text-lg font-bold transition-all hover:shadow-md">
                             <span data-key="hero.ctaSecondary">See how it works</span> <i
@@ -479,7 +482,7 @@
                     </div>
                     <h3 class="text-xl font-bold mb-3" data-key="works.step3.title">Get Answers</h3>
                     <p class="text-slate-400 px-4" data-key="works.step3.text">Receive a single, unbiased summary with a
-                        clear Trust Score and honest pros & cons.</p>
+                        clear Trust Score and honest pros \& cons.</p>
                 </div>
             </div>
         </div>
@@ -555,8 +558,8 @@
                                 class="fas fa-check text-green-500 mr-3"></i> <span data-key="pricing.free.f3">Google
                                 Maps only</span></li>
                     </ul>
-                    <!-- Added group-hover to button -->
-                    <button onclick="openWaitlistForm()"
+                    <!-- Added group-hover to button. Changed onclick to redirect -->
+                    <button onclick="window.location.href='demo_login.html'"
                         class="w-full py-3 rounded-lg font-bold border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 group-hover:border-brand-blue group-hover:text-brand-blue dark:group-hover:border-brand-blue dark:group-hover:text-brand-blue transition-colors duration-200"
                         data-key="pricing.ctaFree">Get Started</button>
                 </div>
@@ -584,8 +587,8 @@
                                 class="fas fa-check text-brand-purple mr-3"></i> <span data-key="pricing.std.f3">Google
                                 Maps only</span></li>
                     </ul>
-                    <!-- Fixed: Button now lights up purple when the CARD is hovered (group-hover) -->
-                    <button onclick="openWaitlistForm()"
+                    <!-- Fixed: Button now lights up purple when the CARD is hovered (group-hover). Changed redirect -->
+                    <button onclick="window.location.href='demo_login.html'"
                         class="w-full py-3 rounded-lg font-bold bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white group-hover:bg-brand-purple group-hover:text-white hover:bg-brand-purple hover:text-white transition-colors duration-200"
                         data-key="pricing.ctaStd">Choose Standard</button>
                 </div>
@@ -618,7 +621,8 @@
                                 class="fas fa-check text-brand-blue mr-3"></i> <span data-key="pricing.pro.f4">Scam
                                 Detection Shield</span></li>
                     </ul>
-                    <button onclick="openWaitlistForm()"
+                    <!-- Changed redirect -->
+                    <button onclick="window.location.href='demo_login.html'"
                         class="w-full py-3 rounded-lg font-bold bg-brand-blue text-white hover:bg-blue-800 transition-colors"
                         data-key="pricing.ctaPro">Choose Jetsetter</button>
                 </div>
@@ -779,19 +783,14 @@
         </div>
     </div>
 
-    <!-- Form Modal -->
+    <!-- Form Modal (Left for code integrity, but no longer triggered by buttons) -->
     <div id="form-modal" class="fixed inset-0 z-[110] hidden" aria-labelledby="modal-title" role="dialog"
         aria-modal="true">
-        <!-- Backdrop -->
         <div class="absolute inset-0 bg-slate-900/95 backdrop-blur-sm transition-opacity opacity-0 fade-in-backdrop"
             onclick="closeFormModal()"></div>
-
         <div class="relative z-10 w-full h-full flex items-center justify-center p-0 md:p-4">
-            <!-- Updated Modal Container: Much wider and taller (90vw/90vh) to fit the form -->
             <div
                 class="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden w-full h-full md:w-[90vw] md:max-w-6xl md:h-[90vh] transform transition-all scale-95 opacity-0 fade-in-modal border border-slate-200 dark:border-slate-700 flex flex-col">
-
-                <!-- Modal Header -->
                 <div
                     class="flex justify-between items-center p-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 z-20 shrink-0">
                     <h3 class="font-bold text-lg text-slate-900 dark:text-white">Join Demo Waitlist</h3>
@@ -800,8 +799,6 @@
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-
-                <!-- Iframe Container with Loader -->
                 <div class="flex-1 relative bg-white dark:bg-slate-900 w-full min-h-0">
                     <div id="form-loader"
                         class="absolute inset-0 flex items-center justify-center bg-white dark:bg-slate-900 z-10">
@@ -810,8 +807,6 @@
                     <iframe id="google-form-frame" src="" class="w-full h-full border-0"
                         onload="document.getElementById('form-loader').style.display='none';"></iframe>
                 </div>
-
-                <!-- Footer removed to maximize form space, relying on Header X button -->
             </div>
         </div>
     </div>
@@ -1068,19 +1063,17 @@
             video.currentTime = 0;
         }
 
-        // --- FORM MODAL LOGIC ---
+        // --- FORM MODAL LOGIC (Preserved but not used by main buttons anymore) ---
         function openWaitlistForm() {
             const modal = document.getElementById('form-modal');
             const iframe = document.getElementById('google-form-frame');
             const loader = document.getElementById('form-loader');
 
-            // Updated Long URLs for faster loading
             const enForm = "https://docs.google.com/forms/d/e/1FAIpQLScthff43jhZsx6uAi-_3TX9rd-JB02r6VVrJ2b6wZe_ANw0vg/viewform?embedded=true";
             const roForm = "https://docs.google.com/forms/d/e/1FAIpQLSdwRkqUEJKvPwIuM-1bZMdG7iLL69sM9xwsiB3PJBfj-UDWyA/viewform?embedded=true";
 
             const url = currentLang === 'ro' ? roForm : enForm;
 
-            // Reset loader
             loader.style.display = 'flex';
             iframe.src = url;
 
@@ -1137,11 +1130,11 @@
                 "nav.useCases": "Use Cases",
                 "nav.pricing": "Pricing",
                 "nav.faq": "FAQ",
-                "nav.cta": "Join the Demo waitlist",
+                "nav.cta": "Access the Demo",
                 "hero.new": "New: Google Maps Integration",
                 "hero.title": "Stop reading <br/> <span class='text-gradient'>300+ reviews.</span><br/> Get one smart answer.",
                 "hero.subtitle": "TripSynapse's AI reads reviews from every platform to give you a clear summary, a trusted score, and the honest truth about your hotel.",
-                "hero.ctaPrimary": "Join the Demo waitlist",
+                "hero.ctaPrimary": "Access the Demo",
                 "hero.ctaSecondary": "See how it works",
                 "hero.note": "No credit card required • Works with all major sites",
                 "mockup.scoreLabel": "Trust Score",
@@ -1249,11 +1242,11 @@
                 "nav.useCases": "Utilizări",
                 "nav.pricing": "Prețuri",
                 "nav.faq": "Întrebări",
-                "nav.cta": "Intră pe lista de așteptare Demo",
+                "nav.cta": "Accesează Demo-ul",
                 "hero.new": "Nou: Integrare Google Maps",
                 "hero.title": "Nu mai citi <br/> <span class='text-gradient'>300+ recenzii.</span><br/> Obține un răspuns inteligent.",
                 "hero.subtitle": "AI-ul TripSynapse analizează recenziile de pe toate platformele și îți oferă un rezumat clar, un scor de încredere și adevărul despre hotelul ales.",
-                "hero.ctaPrimary": "Intră pe lista de așteptare Demo",
+                "hero.ctaPrimary": "Accesează Demo-ul",
                 "hero.ctaSecondary": "Vezi cum funcționează",
                 "hero.note": "Fără card de credit • Funcționează cu site-urile majore",
                 "mockup.scoreLabel": "Scor de Încredere",
