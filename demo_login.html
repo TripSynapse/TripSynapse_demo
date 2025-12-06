@@ -56,6 +56,18 @@
                 transform: translateY(0);
             }
         }
+
+        /* Jetsetter Tab Styles */
+        .jet-tab.active {
+            border-bottom: 2px solid #00529B;
+            color: #00529B;
+            font-weight: 600;
+        }
+
+        .dark .jet-tab.active {
+            border-bottom: 2px solid #F97316;
+            color: #F97316;
+        }
     </style>
 </head>
 
@@ -204,32 +216,38 @@
         </div>
 
         <!-- VIEW 2: APP DASHBOARD (Hidden by default) -->
-        <div id="app-view" class="hidden w-full max-w-4xl animate-fade-in">
+        <div id="app-view" class="hidden w-full max-w-5xl animate-fade-in">
             <!-- Search Bar -->
             <div
                 class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 mb-8">
 
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold" data-key="app.analyzeTitle">Analyze a Hotel</h2>
-                    <!-- Display Current Plan Badge -->
-                    <span id="current-plan-badge"
-                        class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700">
-                        <!-- JS Will Inject Plan Here -->
-                    </span>
+                <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                    <h2 class="text-xl font-bold" data-key="app.analyzeTitle">Find Your Hotel</h2>
+
+                    <!-- NEW: Live Plan Switcher -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs text-slate-500 font-medium">Current Mode:</label>
+                        <select id="plan-switcher" onchange="switchPlan(this.value)"
+                            class="text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-1.5 focus:outline-none focus:border-brand-blue">
+                            <option value="Explorer">Explorer</option>
+                            <option value="Standard">Standard</option>
+                            <option value="Jetsetter">Jetsetter</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-4">
                     <div class="relative flex-grow">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i class="fas fa-link text-slate-400"></i>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-start pt-3 pointer-events-none">
+                            <i class="fas fa-search text-slate-400"></i>
                         </div>
-                        <input type="text" id="hotel-url"
+                        <input type="text" id="hotel-query"
                             class="block w-full pl-10 pr-3 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-purple"
-                            placeholder="Paste Google Maps or Booking.com link here...">
+                            placeholder="e.g., I'm travelling to Cluj and want a quiet hotel...">
                     </div>
                     <button onclick="simulateAnalysis()"
                         class="bg-gradient-brand text-white font-bold px-8 py-3 rounded-lg hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-magic"></i> <span data-key="app.analyzeBtn">Analyze</span>
+                        <i class="fas fa-magic"></i> <span data-key="app.analyzeBtn">Find</span>
                     </button>
                 </div>
             </div>
@@ -240,77 +258,13 @@
                     class="inline-block animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-brand-orange mb-4">
                 </div>
                 <p class="text-lg font-medium text-slate-600 dark:text-slate-300 animate-pulse" data-key="app.loading">
-                    Reading 452 reviews...</p>
+                    Searching database & analyzing reviews...</p>
             </div>
 
-            <!-- Result Card (Hidden initially) -->
+            <!-- RESULT CARD CONTAINER -->
             <div id="result-card"
                 class="hidden bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div
-                    class="bg-slate-50 dark:bg-slate-800 p-6 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div>
-                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Grand Hotel Continental</h3>
-                        <div class="flex items-center text-slate-500 dark:text-slate-400 text-sm mt-1">
-                            <i class="fas fa-map-marker-alt mr-1 text-brand-orange"></i> <span
-                                data-key="app.resultLoc">Bucharest, Romania</span>
-                        </div>
-                    </div>
-                    <div class="bg-emerald-600 text-white px-5 py-3 rounded-xl text-center shadow-lg">
-                        <div class="text-3xl font-bold">8.7</div>
-                        <div class="text-[10px] uppercase font-bold opacity-80" data-key="app.trustScore">Trust Score
-                        </div>
-                    </div>
-                </div>
-
-                <div class="p-6 md:p-8">
-                    <div
-                        class="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
-                        <div class="flex items-center gap-2 mb-3">
-                            <i class="fas fa-brain text-brand-purple text-xl"></i>
-                            <span class="font-bold text-base text-brand-purple" data-key="app.aiSummaryTitle">AI
-                                Summary</span>
-                        </div>
-                        <p class="text-slate-700 dark:text-slate-300 leading-relaxed" data-key="app.aiSummaryText">
-                            A solid choice for history lovers. The location is unbeatable, right in the heart of
-                            Bucharest. Guests consistently praise the breakfast variety and the politeness of the staff.
-                            However, be aware that parking is quite expensive (€25/day) and the gym facilities are very
-                            basic.
-                        </p>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div
-                            class="p-5 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-800/30">
-                            <div
-                                class="text-sm font-bold text-green-700 dark:text-green-400 uppercase mb-3 flex items-center gap-2">
-                                <i class="fas fa-thumbs-up"></i> <span data-key="app.pros">Pros</span>
-                            </div>
-                            <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i> <span
-                                        data-key="app.pro1">Excellent central location</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i> <span
-                                        data-key="app.pro2">Beautiful historic architecture</span></li>
-                                <li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i> <span
-                                        data-key="app.pro3">High quality breakfast</span></li>
-                            </ul>
-                        </div>
-                        <div
-                            class="p-5 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-800/30">
-                            <div
-                                class="text-sm font-bold text-red-700 dark:text-red-400 uppercase mb-3 flex items-center gap-2">
-                                <i class="fas fa-thumbs-down"></i> <span data-key="app.cons">Cons</span>
-                            </div>
-                            <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                                <li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i> <span
-                                        data-key="app.con1">Expensive parking fees</span></li>
-                                <li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i> <span
-                                        data-key="app.con2">Gym is small and outdated</span></li>
-                                <li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i> <span
-                                        data-key="app.con3">Some street noise on lower floors</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                <!-- Content injected via JS based on Plan -->
             </div>
         </div>
 
@@ -372,22 +326,14 @@
                 "login.btn": "Sign In",
                 "login.error": "Invalid username or password.",
                 "login.hint": "Try user: <strong>demo</strong> / pass: <strong>demoUser2025</strong>",
-                "app.analyzeTitle": "Analyze a Hotel",
-                "app.placeholder": "Paste Google Maps or Booking.com link here...",
-                "app.analyzeBtn": "Analyze",
-                "app.loading": "Reading 452 reviews...",
+                "app.analyzeTitle": "Find Your Hotel",
+                "app.placeholder": "e.g., I'm travelling to Cluj and want a quiet hotel...",
+                "app.analyzeBtn": "Find",
+                "app.loading": "Searching database & analyzing reviews...",
                 "app.trustScore": "Trust Score",
-                "app.resultLoc": "Bucharest, Romania",
                 "app.aiSummaryTitle": "AI Summary",
-                "app.aiSummaryText": "A solid choice for history lovers. The location is unbeatable, right in the heart of Bucharest. Guests consistently praise the breakfast variety and the politeness of the staff. However, be aware that parking is quite expensive (€25/day) and the gym facilities are very basic.",
                 "app.pros": "Pros",
-                "app.pro1": "Excellent central location",
-                "app.pro2": "Beautiful historic architecture",
-                "app.pro3": "High quality breakfast",
                 "app.cons": "Cons",
-                "app.con1": "Expensive parking fees",
-                "app.con2": "Gym is small and outdated",
-                "app.con3": "Some street noise on lower floors",
                 "app.footer": "Internal Demo Version 1.0"
             },
             ro: {
@@ -403,22 +349,14 @@
                 "login.btn": "Autentificare",
                 "login.error": "Nume de utilizator sau parolă invalidă.",
                 "login.hint": "Încearcă user: <strong>demo</strong> / parolă: <strong>demoUser2025</strong>",
-                "app.analyzeTitle": "Analizează un Hotel",
-                "app.placeholder": "Lipește link-ul Google Maps sau Booking.com aici...",
-                "app.analyzeBtn": "Analizează",
-                "app.loading": "Se citesc 452 de recenzii...",
+                "app.analyzeTitle": "Găsește Hotelul Tău",
+                "app.placeholder": "ex: Călătoresc la Cluj și vreau un hotel liniștit...",
+                "app.analyzeBtn": "Caută",
+                "app.loading": "Căutăm în bază și analizăm recenziile...",
                 "app.trustScore": "Scor Încredere",
-                "app.resultLoc": "București, România",
                 "app.aiSummaryTitle": "Rezumat AI",
-                "app.aiSummaryText": "O alegere solidă pentru iubitorii de istorie. Locația este imbatabilă, chiar în inima Bucureștiului. Oaspeții laudă constant varietatea micului dejun și politețea personalului. Totuși, rețineți că parcarea este destul de scumpă (€25/zi) iar sala de sport este foarte basic.",
                 "app.pros": "Pro",
-                "app.pro1": "Locație centrală excelentă",
-                "app.pro2": "Arhitectură istorică frumoasă",
-                "app.pro3": "Mic dejun de înaltă calitate",
                 "app.cons": "Contra",
-                "app.con1": "Taxe de parcare scumpe",
-                "app.con2": "Sala de sport mică și învechită",
-                "app.con3": "Zgomot stradal la etajele inferioare",
                 "app.footer": "Versiune Demo Internă 1.0"
             }
         };
@@ -436,7 +374,7 @@
             });
 
             // Update placeholder
-            document.getElementById('hotel-url').placeholder = translations[currentLang]["app.placeholder"];
+            document.getElementById('hotel-query').placeholder = translations[currentLang]["app.placeholder"];
 
             // Update links to keep language
             const homeLink = document.querySelector('.home-link');
@@ -445,25 +383,10 @@
                 homeLink.href = `${base}?lang=${currentLang}`;
             }
 
-            // Update Plan Badge if visible
+            // Sync Plan Switcher
             const storedPlan = sessionStorage.getItem('tripSynapsePlan');
             if (storedPlan) {
-                // Map English Plan names to current lang for display
-                let displayPlan = storedPlan;
-                if (currentLang === 'ro') {
-                    if (storedPlan === 'Explorer') displayPlan = 'Explorator';
-                    // Standard/Jetsetter stay roughly same
-                }
-                const badge = document.getElementById('current-plan-badge');
-                badge.innerText = `Plan: ${displayPlan}`;
-                // Styling depending on plan
-                if (storedPlan === 'Jetsetter') {
-                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-blue/10 text-brand-blue border border-brand-blue/20";
-                } else if (storedPlan === 'Standard') {
-                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-purple/10 text-brand-purple border border-brand-purple/20";
-                } else {
-                    badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700";
-                }
+                document.getElementById('plan-switcher').value = storedPlan;
             }
         }
 
@@ -503,7 +426,7 @@
                 sessionStorage.setItem('tripSynapseUser', validUser.name);
                 sessionStorage.setItem('tripSynapsePlan', planIn);
 
-                updateUI(); // Refresh UI to show plan badge
+                updateUI(); // Refresh UI
             } else {
                 errorMsg.classList.remove('hidden');
                 const form = document.getElementById('login-view');
@@ -518,6 +441,15 @@
             location.reload();
         }
 
+        function switchPlan(newPlan) {
+            sessionStorage.setItem('tripSynapsePlan', newPlan);
+            // If we have a result already showing, re-render it with new plan
+            const resultCard = document.getElementById('result-card');
+            if (!resultCard.classList.contains('hidden')) {
+                simulateAnalysis(); // Re-trigger analysis to render new view
+            }
+        }
+
         window.onload = function () {
             const user = sessionStorage.getItem('tripSynapseUser');
             if (user) {
@@ -525,30 +457,279 @@
                 document.getElementById('app-view').classList.remove('hidden');
                 document.getElementById('logout-btn').classList.remove('hidden');
             }
-            // Re-run UI update to ensure correct language on reload
             updateUI();
         }
 
-        // --- 4. App Simulation Logic ---
+        // --- 4. App Simulation Logic & Data ---
+
+        const MOCK_DATA = {
+            bucharest: {
+                name: "Grand Hotel Continental",
+                location: { en: "Bucharest, Romania", ro: "București, România" },
+                reviews: 452,
+                score: 8.7,
+                shortSummary: {
+                    en: "Historic hotel in city center with excellent breakfast but pricey parking.",
+                    ro: "Hotel istoric în centru cu mic dejun excelent dar parcare scumpă."
+                },
+                summary: {
+                    en: "A solid choice for history lovers. The location is unbeatable, right in the heart of Bucharest. Guests consistently praise the breakfast variety and the politeness of the staff. However, be aware that parking is quite expensive (€25/day) and the gym facilities are very basic.",
+                    ro: "O alegere solidă pentru iubitorii de istorie. Locația este imbatabilă, chiar în inima Bucureștiului. Oaspeții laudă constant varietatea micului dejun și politețea personalului. Totuși, rețineți că parcarea este destul de scumpă (€25/zi) iar sala de sport este foarte basic."
+                },
+                pros: {
+                    en: ["Excellent central location", "Beautiful historic architecture", "High quality breakfast"],
+                    ro: ["Locație centrală excelentă", "Arhitectură istorică frumoasă", "Mic dejun de înaltă calitate"]
+                },
+                cons: {
+                    en: ["Expensive parking fees", "Gym is small and outdated", "Some street noise on lower floors"],
+                    ro: ["Taxe de parcare scumpe", "Sala de sport mică și învechită", "Zgomot stradal la etajele inferioare"]
+                },
+                // JETSETTER EXTRA DATA
+                details: {
+                    scores: { clean: 9.2, service: 8.9, noise: 7.5, amenities: 6.8 },
+                    risks: {
+                        en: ["No major scam patterns detected.", "Authenticity verification passed."],
+                        ro: ["Nu au fost detectate modele de înșelătorie.", "Verificare autenticitate reușită."]
+                    }
+                }
+            },
+            cluj: {
+                name: "Hotel Platinia",
+                location: { en: "Cluj-Napoca, Romania", ro: "Cluj-Napoca, România" },
+                reviews: 890,
+                score: 9.4,
+                shortSummary: {
+                    en: "Luxury suites near stadium, great breakfast, can be noisy due to traffic.",
+                    ro: "Suite de lux lângă stadion, mic dejun bun, poate fi zgomotos din cauza traficului."
+                },
+                summary: {
+                    en: "An excellent modern luxury hotel. Travelers love the spacious suites and the proximity to the city center and stadium. The breakfast is considered one of the best in Cluj. The only minor complaint is the traffic in the area during peak hours.",
+                    ro: "Un hotel de lux modern excelent. Călătorii apreciază suitele spațioase și apropierea de centrul orașului și stadion. Micul dejun este considerat unul dintre cele mai bune din Cluj. Singura plângere minoră este traficul din zonă la orele de vârf."
+                },
+                pros: {
+                    en: ["Modern & Spacious Suites", "Outstanding Breakfast", "Great location near Arena"],
+                    ro: ["Suite Moderne și Spațioase", "Mic Dejun Excepțional", "Locație bună lângă Arenă"]
+                },
+                cons: {
+                    en: ["Traffic noise during rush hour", "Pricey during events"],
+                    ro: ["Zgomot de trafic la orele de vârf", "Scump în timpul evenimentelor"]
+                },
+                // JETSETTER EXTRA DATA
+                details: {
+                    scores: { clean: 9.8, service: 9.5, noise: 8.0, amenities: 9.9 },
+                    risks: {
+                        en: ["Traffic noise complaints correlate with rush hour timestamps.", "Confirmed authentic user base."],
+                        ro: ["Plângerile de zgomot se corelează cu orele de vârf.", "Bază de utilizatori autentică confirmată."]
+                    }
+                }
+            }
+        };
+
         function simulateAnalysis() {
-            const input = document.getElementById('hotel-url');
+            const input = document.getElementById('hotel-query');
             if (!input.value) {
                 input.focus();
                 return;
             }
 
-            const loader = document.getElementById('analysis-loader');
-            const result = document.getElementById('result-card');
+            const query = input.value.toLowerCase();
+            let data = MOCK_DATA.bucharest;
+            if (query.includes("cluj")) {
+                data = MOCK_DATA.cluj;
+            }
 
-            result.classList.add('hidden');
+            const loader = document.getElementById('analysis-loader');
+            const resultCard = document.getElementById('result-card');
+
+            resultCard.classList.add('hidden');
             loader.classList.remove('hidden');
 
             setTimeout(() => {
                 loader.classList.add('hidden');
-                result.classList.remove('hidden');
-                result.classList.add('animate-fade-in');
-            }, 2500);
+
+                // RENDER BASED ON PLAN
+                const plan = sessionStorage.getItem('tripSynapsePlan') || 'Standard';
+                const lang = currentLang;
+
+                if (plan === 'Explorer') {
+                    renderExplorer(data, lang);
+                } else if (plan === 'Jetsetter') {
+                    renderJetsetter(data, lang);
+                } else {
+                    renderStandard(data, lang);
+                }
+
+                resultCard.classList.remove('hidden');
+                resultCard.classList.add('animate-fade-in');
+            }, 1500);
         }
+
+        // --- RENDERERS ---
+
+        function renderExplorer(data, lang) {
+            const html = `
+                <div class="p-8 text-center">
+                     <div class="inline-block bg-slate-100 dark:bg-slate-800 rounded-full px-4 py-1 text-xs font-bold uppercase text-slate-500 mb-4 border border-slate-200 dark:border-slate-700">Explorer Plan</div>
+                     <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">${data.name}</h3>
+                     <div class="text-slate-500 dark:text-slate-400 text-sm mb-6">${data.location[lang]}</div>
+                     
+                     <div class="bg-emerald-600 text-white w-24 h-24 rounded-full flex flex-col items-center justify-center mx-auto shadow-xl mb-6">
+                        <span class="text-3xl font-bold">${data.score}</span>
+                        <span class="text-[8px] uppercase font-bold opacity-80">Trust Score</span>
+                     </div>
+                     
+                     <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800">
+                        <p class="text-slate-700 dark:text-slate-300 italic">"${data.shortSummary[lang]}"</p>
+                     </div>
+                     
+                     <div class="mt-6 text-xs text-slate-400">
+                        <i class="fas fa-lock mr-1"></i> Upgrade to Standard to see detailed Pros & Cons.
+                     </div>
+                </div>
+            `;
+            document.getElementById('result-card').innerHTML = html;
+        }
+
+        function renderStandard(data, lang) {
+            let prosHtml = data.pros[lang].map(p => `<li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i> ${p}</li>`).join('');
+            let consHtml = data.cons[lang].map(c => `<li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i> ${c}</li>`).join('');
+
+            const html = `
+                <div class="bg-slate-50 dark:bg-slate-800 p-6 border-b border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="inline-block bg-purple-100 dark:bg-purple-900/30 text-brand-purple rounded-md px-2 py-0.5 text-[10px] font-bold uppercase mb-1 border border-purple-200 dark:border-purple-800">Standard Plan</div>
+                        <h3 class="text-2xl font-bold text-slate-900 dark:text-white">${data.name}</h3>
+                        <div class="flex flex-wrap items-center gap-3 text-sm mt-1">
+                            <div class="flex items-center text-slate-500 dark:text-slate-400">
+                                <i class="fas fa-map-marker-alt mr-1 text-brand-orange"></i> <span>${data.location[lang]}</span>
+                            </div>
+                            <div class="flex items-center text-slate-500 dark:text-slate-400 bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-md">
+                                <i class="fas fa-comment-alt mr-1 text-slate-400"></i> 
+                                <span>${data.reviews} reviews</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-emerald-600 text-white px-5 py-3 rounded-xl text-center shadow-lg">
+                        <div class="text-3xl font-bold">${data.score}</div>
+                        <div class="text-[10px] uppercase font-bold opacity-80">Trust Score</div>
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fas fa-brain text-brand-purple text-xl"></i>
+                            <span class="font-bold text-base text-brand-purple">AI Summary</span>
+                        </div>
+                        <p class="text-slate-700 dark:text-slate-300 leading-relaxed">${data.summary[lang]}</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="p-5 bg-green-50 dark:bg-green-900/10 rounded-xl border border-green-100 dark:border-green-800/30">
+                            <div class="text-sm font-bold text-green-700 dark:text-green-400 uppercase mb-3 flex items-center gap-2">
+                                <i class="fas fa-thumbs-up"></i> <span>Pros</span>
+                            </div>
+                            <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">${prosHtml}</ul>
+                        </div>
+                        <div class="p-5 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-800/30">
+                            <div class="text-sm font-bold text-red-700 dark:text-red-400 uppercase mb-3 flex items-center gap-2">
+                                <i class="fas fa-thumbs-down"></i> <span>Cons</span>
+                            </div>
+                            <ul class="space-y-2 text-sm text-slate-700 dark:text-slate-300">${consHtml}</ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('result-card').innerHTML = html;
+        }
+
+        function renderJetsetter(data, lang) {
+            // Helper for progress bars
+            const bar = (val, color) => `
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs font-bold mb-1 text-slate-600 dark:text-slate-300">
+                        <span>${val.label}</span>
+                        <span>${val.score}</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                        <div class="bg-${color}-500 h-2.5 rounded-full" style="width: ${val.score * 10}%"></div>
+                    </div>
+                </div>
+            `;
+
+            const alerts = data.details.risks[lang].map(r => `
+                <div class="flex items-start p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg mb-2">
+                    <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-2 text-xs"></i>
+                    <span class="text-xs text-slate-700 dark:text-slate-300">${r}</span>
+                </div>
+            `).join('');
+
+            const html = `
+                <!-- Jetsetter Header -->
+                <div class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                             <div class="inline-block bg-blue-100 dark:bg-blue-900/30 text-brand-blue rounded-md px-2 py-0.5 text-[10px] font-bold uppercase border border-blue-200 dark:border-blue-800">Jetsetter Plan</div>
+                             <h3 class="text-lg font-bold text-slate-900 dark:text-white">${data.name}</h3>
+                        </div>
+                        <div class="text-right">
+                             <div class="text-2xl font-bold text-emerald-600">${data.score}</div>
+                             <div class="text-[9px] uppercase text-slate-400">Trust Score</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tabs -->
+                    <div class="flex space-x-6 text-sm border-b border-slate-200 dark:border-slate-700">
+                        <button class="jet-tab active pb-2">Deep Analysis</button>
+                        <button class="jet-tab text-slate-400 pb-2 hover:text-slate-600">Cross-Platform Insights</button>
+                        <button class="jet-tab text-slate-400 pb-2 hover:text-slate-600">Scam Detection</button>
+                    </div>
+                </div>
+
+                <!-- Jetsetter Body -->
+                <div class="p-6 bg-white dark:bg-slate-900 grid md:grid-cols-3 gap-6">
+                    
+                    <!-- Col 1: Weighted Scoring -->
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Weighted Scoring</h4>
+                        ${bar({ label: 'Cleanliness', score: data.details.scores.clean }, 'emerald')}
+                        ${bar({ label: 'Service', score: data.details.scores.service }, 'emerald')}
+                        ${bar({ label: 'Noise Level', score: data.details.scores.noise }, 'red')}
+                        ${bar({ label: 'Amenities', score: data.details.scores.amenities }, 'emerald')}
+                    </div>
+
+                    <!-- Col 2: Review Heatmap (Visual Mock) -->
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Review Heatmaps</h4>
+                        <div class="text-xs text-slate-500 mb-2">Recent vs Old Reviews</div>
+                        <div class="h-32 w-full flex items-end justify-between gap-1">
+                            <!-- CSS Bar Chart -->
+                            <div class="w-1/6 bg-emerald-200 dark:bg-emerald-900 h-[30%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-emerald-300 dark:bg-emerald-800 h-[45%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-emerald-400 dark:bg-emerald-700 h-[60%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-emerald-500 dark:bg-emerald-600 h-[50%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-emerald-500 dark:bg-emerald-500 h-[80%] rounded-t-sm"></div>
+                            <div class="w-1/6 bg-emerald-600 dark:bg-emerald-400 h-[95%] rounded-t-sm"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+                            <span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+                        </div>
+                    </div>
+
+                    <!-- Col 3: Risk Alerts -->
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Risk Alerts</h4>
+                        ${alerts}
+                        <div class="mt-4 p-2 bg-blue-50 dark:bg-blue-900/10 rounded border border-blue-100 dark:border-blue-800">
+                             <div class="text-[10px] uppercase text-brand-blue font-bold mb-1">AI Verdict</div>
+                             <p class="text-xs text-slate-600 dark:text-slate-400 italic">"Listing appears legitimate with organic review growth."</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('result-card').innerHTML = html;
+        }
+
     </script>
 </body>
 
