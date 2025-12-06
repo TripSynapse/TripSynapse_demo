@@ -58,6 +58,25 @@
         }
 
         /* Jetsetter Tab Styles */
+        .jet-tab {
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid transparent;
+            color: #94a3b8;
+            /* slate-400 */
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .jet-tab:hover {
+            color: #475569;
+            /* slate-600 */
+        }
+
+        .dark .jet-tab:hover {
+            color: #cbd5e1;
+            /* slate-300 */
+        }
+
         .jet-tab.active {
             border-bottom: 2px solid #00529B;
             color: #00529B;
@@ -68,13 +87,23 @@
             border-bottom: 2px solid #F97316;
             color: #F97316;
         }
+
+        /* Stacked Bar Chart Animation */
+        .bar-segment {
+            transition: height 1s ease-out;
+            height: 0;
+        }
+
+        .animate-fade-in .bar-segment {
+            height: var(--target-height);
+        }
     </style>
 </head>
 
 <body
     class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-white font-sans antialiased min-h-screen flex flex-col transition-colors duration-300">
 
-    <!-- Navigation (Simplified for App) -->
+    <!-- Navigation -->
     <nav
         class="w-full py-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
@@ -157,7 +186,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: Plan Selection -->
+                <!-- Plan Selection -->
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3"
                         data-key="login.selectPlan">Select Plan for Demo</label>
@@ -224,7 +253,7 @@
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h2 class="text-xl font-bold" data-key="app.analyzeTitle">Find Your Hotel</h2>
 
-                    <!-- NEW: Live Plan Switcher -->
+                    <!-- Live Plan Switcher -->
                     <div class="flex items-center gap-2">
                         <label class="text-xs text-slate-500 font-medium">Current Mode:</label>
                         <select id="plan-switcher" onchange="switchPlan(this.value)"
@@ -263,7 +292,7 @@
 
             <!-- RESULT CARD CONTAINER -->
             <div id="result-card"
-                class="hidden bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                class="hidden bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden min-h-[400px]">
                 <!-- Content injected via JS based on Plan -->
             </div>
         </div>
@@ -305,12 +334,19 @@
         }
         updateLogo();
 
-        // --- 2. Language Logic ---
+        // --- 2. Language Logic (Fixed Persistence) ---
         let currentLang = 'en';
 
-        // Read URL param
+        // Load language preference from session storage OR URL param
+        const storedLang = sessionStorage.getItem('tripSynapseLang');
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('lang') === 'ro') currentLang = 'ro';
+
+        if (urlParams.get('lang') === 'ro') {
+            currentLang = 'ro';
+            sessionStorage.setItem('tripSynapseLang', 'ro');
+        } else if (storedLang) {
+            currentLang = storedLang;
+        }
 
         const translations = {
             en: {
@@ -334,7 +370,10 @@
                 "app.aiSummaryTitle": "AI Summary",
                 "app.pros": "Pros",
                 "app.cons": "Cons",
-                "app.footer": "Internal Demo Version 1.0"
+                "app.footer": "Internal Demo Version 1.0",
+                "jet.tabDeep": "Deep Analysis",
+                "jet.tabCross": "Cross-Platform Insights",
+                "jet.tabScam": "Scam Detection"
             },
             ro: {
                 "nav.logout": "Deconectare",
@@ -357,7 +396,10 @@
                 "app.aiSummaryTitle": "Rezumat AI",
                 "app.pros": "Pro",
                 "app.cons": "Contra",
-                "app.footer": "Versiune Demo Internă 1.0"
+                "app.footer": "Versiune Demo Internă 1.0",
+                "jet.tabDeep": "Analiză Detaliată",
+                "jet.tabCross": "Date Multi-Platformă",
+                "jet.tabScam": "Detectare Înșelătorii"
             }
         };
 
@@ -392,7 +434,18 @@
 
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'ro' : 'en';
+            sessionStorage.setItem('tripSynapseLang', currentLang);
             updateUI();
+
+            // Re-render dashboard if visible
+            const resultCard = document.getElementById('result-card');
+            if (!resultCard.classList.contains('hidden') && currentResultData) {
+                // If we have data loaded, just re-render with new language immediately
+                const plan = sessionStorage.getItem('tripSynapsePlan') || 'Standard';
+                if (plan === 'Explorer') renderExplorer(currentResultData, currentLang);
+                else if (plan === 'Jetsetter') renderJetsetter(currentResultData, currentLang);
+                else renderStandard(currentResultData, currentLang);
+            }
         }
 
         // Initialize
@@ -438,6 +491,7 @@
         function logout() {
             sessionStorage.removeItem('tripSynapseUser');
             sessionStorage.removeItem('tripSynapsePlan');
+            sessionStorage.removeItem('tripSynapseLang');
             location.reload();
         }
 
@@ -446,7 +500,12 @@
             // If we have a result already showing, re-render it with new plan
             const resultCard = document.getElementById('result-card');
             if (!resultCard.classList.contains('hidden')) {
-                simulateAnalysis(); // Re-trigger analysis to render new view
+                // Re-render without full loading simulation for snappiness
+                const plan = newPlan;
+                const lang = currentLang;
+                if (plan === 'Explorer') renderExplorer(currentResultData, lang);
+                else if (plan === 'Jetsetter') renderJetsetter(currentResultData, lang);
+                else renderStandard(currentResultData, lang);
             }
         }
 
@@ -461,6 +520,8 @@
         }
 
         // --- 4. App Simulation Logic & Data ---
+
+        let currentResultData = null; // Store for re-rendering
 
         const MOCK_DATA = {
             bucharest: {
@@ -484,13 +545,11 @@
                     en: ["Expensive parking fees", "Gym is small and outdated", "Some street noise on lower floors"],
                     ro: ["Taxe de parcare scumpe", "Sala de sport mică și învechită", "Zgomot stradal la etajele inferioare"]
                 },
-                // JETSETTER EXTRA DATA
                 details: {
                     scores: { clean: 9.2, service: 8.9, noise: 7.5, amenities: 6.8 },
-                    risks: {
-                        en: ["No major scam patterns detected.", "Authenticity verification passed."],
-                        ro: ["Nu au fost detectate modele de înșelătorie.", "Verificare autenticitate reușită."]
-                    }
+                    scamPassed: true, // Passed checks
+                    risks: { en: ["Authenticity confirmed"], ro: ["Autenticitate confirmată"] }, // Used if passed
+                    reviewsData: [{ p: 80, n: 5 }, { p: 85, n: 4 }, { p: 90, n: 3 }, { p: 88, n: 6 }] // Q1-Q4 pos/neg values
                 }
             },
             cluj: {
@@ -514,13 +573,42 @@
                     en: ["Traffic noise during rush hour", "Pricey during events"],
                     ro: ["Zgomot de trafic la orele de vârf", "Scump în timpul evenimentelor"]
                 },
-                // JETSETTER EXTRA DATA
                 details: {
                     scores: { clean: 9.8, service: 9.5, noise: 8.0, amenities: 9.9 },
+                    scamPassed: true,
+                    risks: { en: ["Authenticity confirmed"], ro: ["Autenticitate confirmată"] },
+                    reviewsData: [{ p: 90, n: 2 }, { p: 92, n: 3 }, { p: 95, n: 1 }, { p: 94, n: 2 }]
+                }
+            },
+            brasov: {
+                name: "Hotel Horror Brasov",
+                location: { en: "Brasov, Romania", ro: "Brașov, România" },
+                reviews: 120,
+                score: 3.2,
+                shortSummary: {
+                    en: "Suspicious activity detected. Numerous complaints about cold rooms and rude staff.",
+                    ro: "Activitate suspectă detectată. Numeroase plângeri despre camere reci și personal nepoliticos."
+                },
+                summary: {
+                    en: "WARNING: High risk detected. Our analysis found review clusters that appear fabricated (5-star reviews appearing in batches on the same day). Verified guests report no heating in winter and aggressive management responses.",
+                    ro: "AVERTISMENT: Risc ridicat detectat. Analiza noastră a găsit grupuri de recenzii care par fabricate (recenzii de 5 stele apărute în loturi în aceeași zi). Oaspeții verificați raportează lipsa încălzirii iarna și răspunsuri agresive din partea conducerii."
+                },
+                pros: {
+                    en: ["Cheap price (suspiciously low)", "Central location"],
+                    ro: ["Preț mic (suspect de mic)", "Locație centrală"]
+                },
+                cons: {
+                    en: ["No heating", "Rude staff", "Fake photos"],
+                    ro: ["Fără încălzire", "Personal nepoliticos", "Poze false"]
+                },
+                details: {
+                    scores: { clean: 2.0, service: 1.5, noise: 4.0, amenities: 1.0 },
+                    scamPassed: false, // FAILED
                     risks: {
-                        en: ["Traffic noise complaints correlate with rush hour timestamps.", "Confirmed authentic user base."],
-                        ro: ["Plângerile de zgomot se corelează cu orele de vârf.", "Bază de utilizatori autentică confirmată."]
-                    }
+                        en: ["Fabricated review clusters detected (Dec 2024).", "Management responses contain aggression."],
+                        ro: ["Grupuri de recenzii fabricate detectate (Dec 2024).", "Răspunsurile conducerii conțin agresivitate."]
+                    },
+                    reviewsData: [{ p: 10, n: 80 }, { p: 5, n: 90 }, { p: 50, n: 10 }, { p: 5, n: 85 }] // Q3 shows the "fake" spike
                 }
             }
         };
@@ -536,7 +624,11 @@
             let data = MOCK_DATA.bucharest;
             if (query.includes("cluj")) {
                 data = MOCK_DATA.cluj;
+            } else if (query.includes("brasov") || query.includes("brașov")) {
+                data = MOCK_DATA.brasov;
             }
+
+            currentResultData = data; // Save for toggling
 
             const loader = document.getElementById('analysis-loader');
             const resultCard = document.getElementById('result-card');
@@ -547,7 +639,6 @@
             setTimeout(() => {
                 loader.classList.add('hidden');
 
-                // RENDER BASED ON PLAN
                 const plan = sessionStorage.getItem('tripSynapsePlan') || 'Standard';
                 const lang = currentLang;
 
@@ -573,7 +664,7 @@
                      <h3 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">${data.name}</h3>
                      <div class="text-slate-500 dark:text-slate-400 text-sm mb-6">${data.location[lang]}</div>
                      
-                     <div class="bg-emerald-600 text-white w-24 h-24 rounded-full flex flex-col items-center justify-center mx-auto shadow-xl mb-6">
+                     <div class="bg-${data.score < 5 ? 'red' : 'emerald'}-600 text-white w-24 h-24 rounded-full flex flex-col items-center justify-center mx-auto shadow-xl mb-6">
                         <span class="text-3xl font-bold">${data.score}</span>
                         <span class="text-[8px] uppercase font-bold opacity-80">Trust Score</span>
                      </div>
@@ -609,13 +700,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="bg-emerald-600 text-white px-5 py-3 rounded-xl text-center shadow-lg">
+                    <div class="bg-${data.score < 5 ? 'red' : 'emerald'}-600 text-white px-5 py-3 rounded-xl text-center shadow-lg">
                         <div class="text-3xl font-bold">${data.score}</div>
                         <div class="text-[10px] uppercase font-bold opacity-80">Trust Score</div>
                     </div>
                 </div>
 
                 <div class="p-6 md:p-8">
+                    <!-- Added Short Summary from Explorer here as requested -->
+                    <div class="mb-4 text-center">
+                        <p class="text-slate-500 dark:text-slate-400 italic text-sm">"${data.shortSummary[lang]}"</p>
+                    </div>
+
                     <div class="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl border border-blue-100 dark:border-blue-800 mb-6">
                         <div class="flex items-center gap-2 mb-3">
                             <i class="fas fa-brain text-brand-purple text-xl"></i>
@@ -643,6 +739,24 @@
             document.getElementById('result-card').innerHTML = html;
         }
 
+        // Global function to handle tab switching
+        window.switchJetTab = function (tabName) {
+            const tabs = document.querySelectorAll('.jet-tab');
+            const contents = document.querySelectorAll('.jet-content');
+
+            tabs.forEach(t => t.classList.remove('active', 'text-brand-blue', 'dark:text-brand-orange'));
+            tabs.forEach(t => {
+                if (t.dataset.tab === tabName) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.add('text-slate-400'); // Reset non-active
+                }
+            });
+
+            contents.forEach(c => c.classList.add('hidden'));
+            document.getElementById(`jet-${tabName}`).classList.remove('hidden');
+        };
+
         function renderJetsetter(data, lang) {
             // Helper for progress bars
             const bar = (val, color) => `
@@ -657,12 +771,75 @@
                 </div>
             `;
 
-            const alerts = data.details.risks[lang].map(r => `
-                <div class="flex items-start p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg mb-2">
-                    <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-2 text-xs"></i>
-                    <span class="text-xs text-slate-700 dark:text-slate-300">${r}</span>
+            // Build Alerts
+            let alertHtml = '';
+            if (data.details.scamPassed) {
+                // Success State
+                alertHtml = data.details.risks[lang].map(r => `
+                    <div class="flex items-start p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-lg mb-2">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2 text-xs"></i>
+                        <span class="text-xs text-slate-700 dark:text-slate-300">${r}</span>
+                    </div>
+                `).join('');
+            } else {
+                // Warning State
+                alertHtml = data.details.risks[lang].map(r => `
+                    <div class="flex items-start p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-lg mb-2">
+                        <i class="fas fa-exclamation-triangle text-red-500 mt-1 mr-2 text-xs"></i>
+                        <span class="text-xs text-slate-700 dark:text-slate-300">${r}</span>
+                    </div>
+                `).join('');
+            }
+
+            // Build Heatmap Chart (Stacked Bars)
+            // data.details.reviewsData = [{p:90, n:5}, ...]
+            let chartHtml = `
+                <div class="h-32 w-full flex items-end justify-between gap-4 mt-2">
+            `;
+            const quarters = ["Q1", "Q2", "Q3", "Q4"];
+            data.details.reviewsData.forEach((q, idx) => {
+                // Scale heights to max 100%
+                const total = q.p + q.n;
+                const hP = Math.floor((q.p / 120) * 100); // approx scaling
+                const hN = Math.floor((q.n / 120) * 100);
+
+                chartHtml += `
+                    <div class="flex flex-col items-center w-1/4 h-full justify-end group relative">
+                        <!-- Tooltip -->
+                        <div class="absolute -top-8 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            +${q.p} / -${q.n}
+                        </div>
+                        
+                        <!-- Positive Bar -->
+                        <div class="w-full bg-green-400 dark:bg-green-500 rounded-t-sm bar-segment" style="--target-height: ${hP}%"></div>
+                        <!-- Negative Bar -->
+                        <div class="w-full bg-red-400 dark:bg-red-500 mt-1 rounded-b-sm bar-segment" style="--target-height: ${hN}%"></div>
+                        
+                        <div class="text-[10px] text-slate-400 mt-2 font-bold">${quarters[idx]}</div>
+                    </div>
+                `;
+            });
+            chartHtml += `</div>`;
+
+            // Standard View Content (Re-used for the Cross-Platform Tab)
+            let prosHtml = data.pros[lang].map(p => `<li class="flex items-start"><i class="fas fa-check text-green-500 mt-1 mr-2"></i> ${p}</li>`).join('');
+            let consHtml = data.cons[lang].map(c => `<li class="flex items-start"><i class="fas fa-times text-red-500 mt-1 mr-2"></i> ${c}</li>`).join('');
+
+            const standardContent = `
+                <div class="p-4">
+                    <p class="text-slate-700 dark:text-slate-300 mb-6">${data.summary[lang]}</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-green-50 dark:bg-green-900/10 rounded-lg border border-green-100">
+                             <h5 class="text-xs font-bold text-green-700 mb-2 uppercase">Pros</h5>
+                             <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300">${prosHtml}</ul>
+                        </div>
+                        <div class="p-4 bg-red-50 dark:bg-red-900/10 rounded-lg border border-red-100">
+                             <h5 class="text-xs font-bold text-red-700 mb-2 uppercase">Cons</h5>
+                             <ul class="text-xs space-y-2 text-slate-700 dark:text-slate-300">${consHtml}</ul>
+                        </div>
+                    </div>
                 </div>
-            `).join('');
+            `;
 
             const html = `
                 <!-- Jetsetter Header -->
@@ -673,56 +850,104 @@
                              <h3 class="text-lg font-bold text-slate-900 dark:text-white">${data.name}</h3>
                         </div>
                         <div class="text-right">
-                             <div class="text-2xl font-bold text-emerald-600">${data.score}</div>
+                             <div class="text-2xl font-bold text-${data.score < 5 ? 'red' : 'emerald'}-600">${data.score}</div>
                              <div class="text-[9px] uppercase text-slate-400">Trust Score</div>
                         </div>
                     </div>
                     
                     <!-- Tabs -->
-                    <div class="flex space-x-6 text-sm border-b border-slate-200 dark:border-slate-700">
-                        <button class="jet-tab active pb-2">Deep Analysis</button>
-                        <button class="jet-tab text-slate-400 pb-2 hover:text-slate-600">Cross-Platform Insights</button>
-                        <button class="jet-tab text-slate-400 pb-2 hover:text-slate-600">Scam Detection</button>
+                    <div class="flex space-x-6 text-sm border-b border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar">
+                        <button onclick="switchJetTab('deep')" data-tab="deep" class="jet-tab active" data-key="jet.tabDeep">Deep Analysis</button>
+                        <button onclick="switchJetTab('cross')" data-tab="cross" class="jet-tab" data-key="jet.tabCross">Cross-Platform Insights</button>
+                        <button onclick="switchJetTab('scam')" data-tab="scam" class="jet-tab" data-key="jet.tabScam">Scam Detection</button>
                     </div>
                 </div>
 
-                <!-- Jetsetter Body -->
-                <div class="p-6 bg-white dark:bg-slate-900 grid md:grid-cols-3 gap-6">
-                    
-                    <!-- Col 1: Weighted Scoring -->
+                <!-- TAB CONTENT: DEEP ANALYSIS -->
+                <div id="jet-deep" class="jet-content p-6 bg-white dark:bg-slate-900 grid md:grid-cols-3 gap-6">
+                    <!-- Weighted Scoring -->
                     <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
                         <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Weighted Scoring</h4>
                         ${bar({ label: 'Cleanliness', score: data.details.scores.clean }, 'emerald')}
-                        ${bar({ label: 'Service', score: data.details.scores.service }, 'emerald')}
+                        ${bar({ label: 'Service', score: data.details.scores.service }, data.score < 5 ? 'red' : 'emerald')}
                         ${bar({ label: 'Noise Level', score: data.details.scores.noise }, 'red')}
                         ${bar({ label: 'Amenities', score: data.details.scores.amenities }, 'emerald')}
                     </div>
 
-                    <!-- Col 2: Review Heatmap (Visual Mock) -->
+                    <!-- Review Heatmaps -->
                     <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Review Heatmaps</h4>
-                        <div class="text-xs text-slate-500 mb-2">Recent vs Old Reviews</div>
-                        <div class="h-32 w-full flex items-end justify-between gap-1">
-                            <!-- CSS Bar Chart -->
-                            <div class="w-1/6 bg-emerald-200 dark:bg-emerald-900 h-[30%] rounded-t-sm"></div>
-                            <div class="w-1/6 bg-emerald-300 dark:bg-emerald-800 h-[45%] rounded-t-sm"></div>
-                            <div class="w-1/6 bg-emerald-400 dark:bg-emerald-700 h-[60%] rounded-t-sm"></div>
-                            <div class="w-1/6 bg-emerald-500 dark:bg-emerald-600 h-[50%] rounded-t-sm"></div>
-                            <div class="w-1/6 bg-emerald-500 dark:bg-emerald-500 h-[80%] rounded-t-sm"></div>
-                            <div class="w-1/6 bg-emerald-600 dark:bg-emerald-400 h-[95%] rounded-t-sm"></div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-sm font-bold text-slate-900 dark:text-white">Review Heatmaps</h4>
+                            <select class="text-[10px] bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded px-1 py-0.5">
+                                <option>2025</option>
+                                <option>2024</option>
+                                <option>2023</option>
+                            </select>
                         </div>
-                        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-                            <span>Q1</span><span>Q2</span><span>Q3</span><span>Q4</span>
+                        <div class="flex items-center gap-2 text-[10px] mb-2">
+                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-green-500 mr-1"></span> Pos</span>
+                            <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-1"></span> Neg</span>
+                        </div>
+                        ${chartHtml}
+                    </div>
+
+                    <!-- Risk Alerts -->
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Risk Alerts</h4>
+                        ${alertHtml}
+                        <div class="mt-4 p-2 bg-blue-50 dark:bg-blue-900/10 rounded border border-blue-100 dark:border-blue-800">
+                             <div class="text-[10px] uppercase text-brand-blue font-bold mb-1">AI Verdict</div>
+                             <p class="text-xs text-slate-600 dark:text-slate-400 italic">
+                                "${data.details.scamPassed ? "Listing appears legitimate with organic review growth." : "Listing suspicious. Avoid booking."}"
+                             </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB CONTENT: CROSS PLATFORM (Standard View) -->
+                <div id="jet-cross" class="jet-content hidden p-6 bg-white dark:bg-slate-900">
+                     <h4 class="text-lg font-bold mb-4">Aggregated Summary (Standard View)</h4>
+                     <div class="bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        ${standardContent}
+                     </div>
+                </div>
+
+                <!-- TAB CONTENT: SCAM DETECTION -->
+                <div id="jet-scam" class="jet-content hidden p-6 bg-white dark:bg-slate-900">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center bg-${data.details.scamPassed ? 'green' : 'red'}-100 dark:bg-${data.details.scamPassed ? 'green' : 'red'}-900/30">
+                            <i class="fas fa-${data.details.scamPassed ? 'shield-alt' : 'exclamation-triangle'} text-2xl text-${data.details.scamPassed ? 'green' : 'red'}-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white">${data.details.scamPassed ? 'Listing Verified Safe' : 'Listing Flagged as Unsafe'}</h3>
+                            <p class="text-sm text-slate-500">Analysis run on 3 data sources.</p>
                         </div>
                     </div>
 
-                    <!-- Col 3: Risk Alerts -->
-                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700">
-                        <h4 class="text-sm font-bold text-slate-900 dark:text-white mb-4">Risk Alerts</h4>
-                        ${alerts}
-                        <div class="mt-4 p-2 bg-blue-50 dark:bg-blue-900/10 rounded border border-blue-100 dark:border-blue-800">
-                             <div class="text-[10px] uppercase text-brand-blue font-bold mb-1">AI Verdict</div>
-                             <p class="text-xs text-slate-600 dark:text-slate-400 italic">"Listing appears legitimate with organic review growth."</p>
+                    <div class="space-y-4">
+                        <!-- Check 1 -->
+                        <div class="flex justify-between items-center p-4 border border-slate-100 dark:border-slate-800 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-images text-slate-400"></i>
+                                <span class="text-sm font-medium">Image Reverse Search</span>
+                            </div>
+                            <span class="text-xs font-bold px-2 py-1 rounded bg-${data.details.scamPassed ? 'green' : 'red'}-100 text-${data.details.scamPassed ? 'green' : 'red'}-700">${data.details.scamPassed ? 'PASSED' : 'FAILED (Stock Photos)'}</span>
+                        </div>
+                        <!-- Check 2 -->
+                        <div class="flex justify-between items-center p-4 border border-slate-100 dark:border-slate-800 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-users text-slate-400"></i>
+                                <span class="text-sm font-medium">Review Burst Patterns</span>
+                            </div>
+                            <span class="text-xs font-bold px-2 py-1 rounded bg-${data.details.scamPassed ? 'green' : 'red'}-100 text-${data.details.scamPassed ? 'green' : 'red'}-700">${data.details.scamPassed ? 'NORMAL' : 'DETECTED'}</span>
+                        </div>
+                        <!-- Check 3 -->
+                        <div class="flex justify-between items-center p-4 border border-slate-100 dark:border-slate-800 rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-map-marked text-slate-400"></i>
+                                <span class="text-sm font-medium">Location Consistency</span>
+                            </div>
+                            <span class="text-xs font-bold px-2 py-1 rounded bg-green-100 text-green-700">PASSED</span>
                         </div>
                     </div>
                 </div>
